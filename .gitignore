@@ -44,3 +44,6 @@ nbdist/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+docker-local/mysql/data
+docker-local/nacos/logs
+docker-local/redis/data
