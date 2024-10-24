@@ -132,7 +132,7 @@ services:
       - ./redis/conf/redis.conf:/home/ruoyi/redis/redis.conf
       - ./redis/data:/data
   ruoyi-nginx:
-    container_name: ruoyi-nginx
+    container_name: ${NGINX_CONTAINER_NAME}
     build:
       context: ./nginx
       args:
@@ -141,14 +141,31 @@ services:
       TZ: "$TZ"
     ports:
       - "80:80"
-      - "8848:8848"
-      - "9848:9848"
+      - "${NGINX_NACOS_MAIN_PORT}:8848"
+      - "${NGINX_NACOS_GRPC_PORT}:9848"
     volumes:
       - ./nginx/html/dist:/home/ruoyi/projects/ruoyi-ui
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/logs:/var/log/nginx
       - ./nginx/conf/conf.d:/etc/nginx/conf.d
 
+  #分布式事务
+  seata-server:
+    container_name: ${SEATA_CONTAINER_NAME}
+    image: apache/seata-server:${SEATA_VERSION}
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    volumes:
+      - ./seata/conf/application.yml:/seata-server/resources/application.yml
+      - ./seata/lib/jdbc/mysql-connector-j-8.0.33.jar:/seata-server/libs/mysql-connector-java.jar
+    environment:
+      STORE_MODE: "db"
+      SEATA_IP: "192.168.50.27"
+      TZ: "$TZ"
+      NACOS_ADDR: "${NGINX_CONTAINER_NAME}"
+      MYSQL_ADDR: "${MYSQL_CONTAINER_NAME}"
+      MYSQL_PASS: "${MYSQL_ROOT_PASSWORD}"
 #  ruoyi-gateway:
 #    container_name: ruoyi-gateway
 #    build:
